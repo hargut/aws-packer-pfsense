@@ -1,0 +1,8 @@
+{
+    "Description": "pfSense CE 2.4.2",
+    "Format": "FORMAT_PLACEHODLER",
+    "UserBucket": {
+        "S3Bucket": "BUCKET_PLACEHODLER",
+        "S3Key": "IMAGE_PLACEHODLER"
+    }
+}

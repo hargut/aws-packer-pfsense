@@ -1,0 +1,66 @@
+{
+  "builders": [
+    {
+      "http_directory": "config",
+      "http_port_min": "8100",
+      "boot_wait": "45s",
+      "boot_command": [
+	"<wait5><enter>",
+	"<wait5><enter>",
+	"<wait5><enter>",
+	"<wait5><down>",
+	"<wait5><enter>",
+	"<wait5><left>",
+	"<wait5><enter>",
+	"<wait5><enter>",
+	"<wait5><down>",
+	"<wait5><enter>",
+	"<wait5><enter>",
+	"<wait5><enter>",
+	"<wait10><wait10><wait10><wait10><enter>",
+	"<wait5><enter>",
+	"<wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>",
+	"8<wait5><enter>",
+	"curl http://{{ .HTTPIP }}:{{ .HTTPPort }}/config.xml >/conf/config.xml<wait5><enter>",
+	"reboot<wait5><enter>"
+      ],
+      "type": "qemu",
+      "iso_url": "input/pfSense-CE-2.4.2-RELEASE-amd64.iso",
+      "iso_checksum_type": "sha256",
+      "iso_checksum": "3fa30cac9b8519e89a176ca8845a5a9536af0e11226f2ec9bcaf85ebcab40416",
+      "shutdown_command": "shutdown -p now",
+      "disk_size": "4096",
+      "format": "raw",
+      "vm_name": "pfSense-CE-2.4.2_{{ isotime \"20060102_030405\"}}.raw",
+      "ssh_username": "root",
+      "ssh_password": "pfsense",
+      "ssh_wait_timeout": "120s",
+      "output_directory": "output-qemu",
+      "headless": "true",
+      "net_device": "e1000",
+      "vnc_bind_address": "127.0.0.1",
+      "vnc_port_min": "5900",
+      "vnc_port_max": "5900",
+      "qemuargs": [
+	["-m", "1024M"],
+	["-smp", "1"],
+	["-netdev", "user,id=user.0,hostfwd=tcp::{{ .SSHHostPort }}-:6736,hostfwd=tcp::7373-:7373"],
+	["-device", "e1000,netdev=user.0"],
+	["-netdev", "user,id=user.1"],
+	["-device", "e1000,netdev=user.1"]
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "config/provision.sh"
+    }
+  ],
+  "post-processors": [
+    {
+	"type": "shell-local",
+	 "inline": ["IMAGE=\"$(ls -1tr output-qemu/*.raw | tail -n 1)\"; qemu-img convert -f raw -O vmdk -o subformat=streamOptimized ${IMAGE} output-qemu/$(basename ${IMAGE} .raw).vmdk"]
+    }
+  ]
+}

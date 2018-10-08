@@ -1,0 +1,4 @@
+.idea/
+packer-pfsense.iml
+output-*/
+packer_cache/
